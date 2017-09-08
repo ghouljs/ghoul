@@ -1,8 +1,8 @@
-const stack: any[] = [];
-
 import { Node, Attributes } from './types';
 
-export function h(tag: string | Function, attributes: Attributes = {}): Node {
+const stack: any[] = [];
+
+export function h(tag: string | Function, attributes: Attributes = {}, ...args: any[]): Node {
   let node;
   let simple, lastSimple;
   const children = [];
@@ -13,7 +13,7 @@ export function h(tag: string | Function, attributes: Attributes = {}): Node {
 
   while (stack.length) {
     if (Array.isArray(node = stack.pop())) {
-      for (let i = node.length; i > 0; i -= 1) {
+      for (let i = node.length; i >= 0; i--) {
         stack.push(node[i]);
       }
     } else if (node != null && node !== true && node !== false) {
@@ -27,9 +27,9 @@ export function h(tag: string | Function, attributes: Attributes = {}): Node {
 
       if (simple && lastSimple) {
         children[children.length - 1] += node;
-      } else [
+      } else {
         children.push(node);
-      ]
+      }
 
       lastSimple = simple;
     }
