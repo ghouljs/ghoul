@@ -60,6 +60,10 @@ export default function patch(parent: HTMLElement | SVGElement | Text, element: 
           oldElement: reusableElement = null,
           oldNode: reusableNode = null,
         } = reusableChildren[newKey] || {};
+
+        // remove usedChildren;
+        delete reusableChildren[newKey];
+
         if (oldKey === newKey) {
           patch(element as any, reusableElement as any, reusableNode, newChildNode);
         } else if (reusableElement) {
@@ -77,12 +81,18 @@ export default function patch(parent: HTMLElement | SVGElement | Text, element: 
     while (i < oldNode.attributes.children.length) {
       const key = getKey(oldNode.attributes.children[i]);
 
-      if (null == key || !usedKeys[key]) {
+      if (null == key || (key && !usedKeys[key])) {
         const oldChildNode = oldNode.attributes.children[i];
         removeElement(element, oldElements[i], oldChildNode.attributes);
       }
 
       i++;
+    }
+
+    for (const k in reusableChildren) {
+      if (!usedKeys[k]) {
+        removeElement(element, reusableChildren[k].oldElement, reusableChildren[k].oldNode.attributes);
+      }
     }
 
   } else if (element && (element as any).nodeValue !== node) {

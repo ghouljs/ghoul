@@ -1,4 +1,4 @@
-import { Props, Context, State } from '../types';
+import { Props, Context, State } from './types';
 
 // const FORCE_RENDER = 'FORCE_RENDER';
 

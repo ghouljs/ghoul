@@ -17,16 +17,25 @@ let oldNode;
 let node;
 let count = 0;
 let text = '';
+let close = false;
 
 const app = () => (
   <h1>
-    <div>
-      {count}<br/>
-      <span>{text}</span>
-    </div>
-    <button onClick={(e) => { console.log(e); count += 1; render(); }}>+</button>
+    {close ? <div key="o">closed</div> : (
+      <div
+        key="o"
+        oncreate={(e) => console.log('create: ', e)}
+        onupdate={(e) => console.log('update: ', e)}
+        onremove={(e) => console.log('remove: ', e)}
+      >
+        {count}<br/>
+        <span>{text}</span>
+      </div>
+    )}
+    <button onClick={(e) => { count += 1; render(); }}>+</button>
     <button onClick={() => { count -= 1; render(); }}>-</button>
     <input type="text" onInput={e => { console.log(e.target.value); text = e.target.value; render(); }} />
+    <button onClick={(e) => { close = !close; render(); }}>{close ? '开' : '关'}</button>
   </h1>
 );
 

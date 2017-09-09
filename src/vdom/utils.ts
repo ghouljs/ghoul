@@ -2,7 +2,7 @@ import { Node, Attributes } from '../types';
 
 const noop = () => {};
 
-function compose(...funcs: Function[]) {
+export function compose(...funcs: Function[]) {
   if (funcs.length === 0) return noop;
 
   if (funcs.length === 1) return funcs[0];

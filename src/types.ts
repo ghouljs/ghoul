@@ -1,3 +1,11 @@
+export interface IObject {
+  [key: string]: any;
+}
+
+export interface FunctionObject {
+  [key: string]: Function;
+}
+
 export interface Node {
   tag: string;
   attributes: Attributes;
@@ -23,3 +31,13 @@ export interface Context {
 export interface State {
   [key: string]: any;
 };
+
+export interface App {
+  state: IObject;
+  view: Function;
+  actions: IObject;
+  effects: FunctionObject;
+  subscriptions: IObject;
+
+  root?: HTMLElement;
+}
