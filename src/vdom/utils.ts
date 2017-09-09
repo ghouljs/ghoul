@@ -70,6 +70,11 @@ export function createElement(node: Node): HTMLElement | SVGElement | Text {
       element.appendChild(createElement(childNode));
     }
 
+    // lifecycle: 1 oncreate
+    if (node.attributes && node.attributes.oncreate) {
+      node.attributes.oncreate(element);
+    }
+
     return element;
   }
 }
@@ -84,15 +89,21 @@ export function updateElement(element: HTMLElement | SVGElement | Text, props: A
       setProps(element, key, nextValue, value);
     }
   }
+
+  if (props && props.onupdate) {
+    props.onupdate(element);
+  }
 }
 
-export function removeElement(parent: HTMLElement | SVGElement | Text, element: HTMLElement | SVGElement | Text, attributes: Attributes) {
+export function removeElement(parent: HTMLElement | SVGElement | Text, element: HTMLElement | SVGElement | Text, props: Attributes) {
   const remove = () => {
     parent.removeChild(element);
   };
   
-  if (attributes && attributes.onremove) {
-    compose(remove, attributes.onremove)(element);
+
+  // lifecycle: onremove
+  if (props && props.onremove) {
+    compose(remove, props.onremove)(element);
   } else {
     remove();
   }
