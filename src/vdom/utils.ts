@@ -13,11 +13,27 @@ function compose(...funcs: Function[]) {
 function setProps(element: HTMLElement | SVGElement | Text, key: string, value: any = {}, oldValue: any = {}) {
   if (key === 'key' || key === 'children') {
     return true;
-  } else if (key == 'style') {
+  } else if (key === 'ref') {
+    if ((element as any).ref == null) {
+      (element as any).ref = value;
+      value(element);
+    }
+  } else if (key === 'class' || key === 'className') {
+    (element as any).className = value || '';
+  } else if (key === 'style') {
     for (const i in Object.assign({}, oldValue, value)) {
       if (typeof i === 'string') {
         (element as any).style[i] = value[i] || '';
       }
+    }
+  } else if (key === 'dangerouslySetInnerHTML') {
+    if (value) (element as any).innerHTML = value.__html || '';
+  } else if (key.indexOf('on') !== -1) {
+    // event listener
+    if (value && (element as any)[key.toLowerCase()] == null) {
+      (element as any)[key.toLowerCase()] = typeof value === 'function' ? value : noop;
+    } else if (value == null) {
+      (element as any)[key.toLowerCase()] = null;
     }
   } else {
     try {
@@ -83,5 +99,5 @@ export function removeElement(parent: HTMLElement | SVGElement | Text, element: 
 }
 
 export function getKey(node: Node) {
-  return node && node.attributes && node.attributes.key;
+  return node && node.attributes && node.attributes.key || undefined;
 }

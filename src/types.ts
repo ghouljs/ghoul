@@ -11,3 +11,15 @@ export interface Attributes {
 export interface Style {
   [key: string]: any;
 }
+
+export interface Props {
+  [key: string]: any;
+};
+
+export interface Context {
+  [key: string]: any;
+};
+
+export interface State {
+  [key: string]: any;
+};

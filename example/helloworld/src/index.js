@@ -9,31 +9,38 @@ const Card = (props) => {
   );
 }
 
-const app = () => (
-  <h1>
-    <Card style={{ transition: 'all .3s ease', width: `${200 + Math.random() * 400}px`, backgroundColor: 'purple' }}>
-      hh: bian
-    </Card>
-    <Card style={{ transition: 'all .3s ease', width: `${200 + Math.random() * 400}px`, backgroundColor: 'purple' }}>
-      hh: bian
-    </Card>
-    <Card style={{ transition: 'all .3s ease', width: `${200 + Math.random() * 400}px`, backgroundColor: 'purple' }}>
-      hh: bian
-    </Card>
-  </h1>
-);
-
-console.log(app, app());
+let aref;
 
 const parent = document.body;
 let element;
 let oldNode;
-let node = app();
+let node;
+let count = 0;
+let text = '';
 
-element = patch(parent, element, oldNode, node);
+const app = () => (
+  <h1>
+    <div>
+      {count}<br/>
+      <span>{text}</span>
+    </div>
+    <button onClick={(e) => { console.log(e); count += 1; render(); }}>+</button>
+    <button onClick={() => { count -= 1; render(); }}>-</button>
+    <input type="text" onInput={e => { console.log(e.target.value); text = e.target.value; render(); }} />
+  </h1>
+);
 
-setInterval(() => { 
+function render() {
   oldNode = node;
   node = app();
   element = patch(parent, element, oldNode, node);
-}, 1000);
+}
+
+render();
+// console.log(aref);
+
+// setInterval(() => { 
+//   oldNode = node;
+//   node = app();
+//   element = patch(parent, element, oldNode, node);
+// }, 1000);
