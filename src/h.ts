@@ -37,5 +37,5 @@ export function h(tag: string | Function, attributes: Attributes = {}, ...args: 
 
   return typeof tag === 'string'
     ? { tag, attributes: { ...attributes, children } }
-    : tag({ ...attributes, children });
+    : tag({ ...attributes, children, _component: (tag as any).name || (tag as any).displayName });
 }
