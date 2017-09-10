@@ -38,9 +38,9 @@ export function ghoul(props: App) {
         return o;
       }, subscriptions);
 
-    runSubscriptions();
+    requestAnimationFrame(render as any);
 
-    render();
+    setImmediate(runSubscriptions);
   }
 
   function render() {
@@ -61,8 +61,14 @@ export function ghoul(props: App) {
       if (typeof updatedState === 'function') {
         updatedState();
       } else {
-        state = { ...state, ...updatedState };
-        next();
+        const currentState = { ...state, ...updatedState };
+
+        // shallow compare state (@TODO) on top root, to reduce render
+        if (Object.keys(state).length === Object.keys(currentState).length
+        && Object.keys(state).every(k => state[k] === currentState[k])) return ;
+        
+        state = currentState;
+        requestAnimationFrame(next as any);
       }
     };
   }
