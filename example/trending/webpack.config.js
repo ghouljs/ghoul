@@ -22,7 +22,13 @@ module.exports = {
           presets: ['env'],
           plugins: [
             ['transform-react-jsx', { 'pragma': 'h' }],
-            'transform-runtime',
+            ['transform-runtime', {
+              'helpers': false,
+              'polyfill': true,
+              'regenerator': true,
+              'moduleName': 'babel-runtime',
+            }],
+            'transform-object-rest-spread'
           ],
         },
       },
@@ -54,4 +60,5 @@ module.exports = {
     https: false,
     noInfo: true,
   },
+  devtool: process.env.NODE_ENV === 'production' ? false : 'cheap-source-map',
 };

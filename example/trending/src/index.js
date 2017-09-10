@@ -36,6 +36,9 @@ const { classes: cardClasses } = jss.createStyleSheet({
   outer: {
     padding: 16,
     position: 'relative',
+    outline: 'none',
+    display: 'block',
+    textDecoration: 'none',
   },
   container: {
     color: 'rgba(0, 0, 0, 1)',
@@ -59,6 +62,8 @@ const { classes: cardClasses } = jss.createStyleSheet({
   },
   simple: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
   counter: {
     flex: 1,
@@ -85,8 +90,10 @@ const { classes: cardClasses } = jss.createStyleSheet({
     userSelect: 'none',
   },
   title: {
+    position: 'relative',
     flex: 1,
     marginBottom: '.3rem',
+    height: '1.5rem',
   },
   star: {
     flex: 1,
@@ -172,6 +179,31 @@ const { classes: commonClasses } = jss.createStyleSheet({
       transform: 'translateZ(0)',
     },
   },
+  btns: {
+    fontSize: '.85rem',
+    position: 'fixed',
+    right: '1rem',
+    bottom: '1rem',
+    color: 'rgba(0, 0, 0, .78)',
+  },
+  btn: {
+    marginTop: '.5rem',
+    height: '40px',
+    width: '40px',
+    borderRadius: '50%',
+    // border: '1px solid rgba(224, 224, 224, 1)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#eef1f5',
+    boxShadow: '0 6px 10px 0 rgba(0,0,0,0.3)',
+    padding: 6,
+    overflow: 'hidden',
+  },
+  hidden: {
+    opacity: 0,
+    pointerEvents: 'none',
+  },
 }).attach();
 
 const Page = ({ children }) => {
@@ -187,7 +219,22 @@ const Avatar = ({ src }) => (
 );
 
 const Title = ({ text }) => (
-  <div className={cardClasses.title}>{text}</div>
+  <div className={cardClasses.title}>
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {text}
+    </div>
+  </div>
 );
 
 const Star = ({ count }) => (
@@ -213,8 +260,8 @@ const Icon = ({ name }) => (
   />
 );
 
-const Card = ({ style, className, avatar, repo, star, fork, desciption }) => (
-  <div className={cardClasses.outer}>
+const Card = ({ key, style, className, link, avatar, repo, star, fork, desciption }) => (
+  <a key={key} className={cardClasses.outer} href={link}>
     <div style={style} className={[cardClasses.container, className].join(' ')}>
       <div className={cardClasses.top}>
         <Avatar src={avatar} />
@@ -237,30 +284,30 @@ const Card = ({ style, className, avatar, repo, star, fork, desciption }) => (
         {desciption}
       </Desciption>
     </div>
-  </div>
+  </a>
 );
 
-const SyncButton = (props) => (
+const SyncButton = ({ active, menus = [], onOpen, onSelect, ...others }) => (
   <div
-    style={{
-      fontSize: '1.5rem',
-      height: '40px',
-      width: '40px',
-      borderRadius: '50%',
-      border: '1px solid rgba(224, 224, 224, 1)',
-      position: 'fixed',
-      right: '1rem',
-      bottom: '1rem',
-      color: 'rgba(0, 0, 0, .78)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#eef1f5',
-      boxShadow: '0 6px 10px 0 rgba(0,0,0,0.3)',
-    }}
-    {...props}
+    className={commonClasses.btns}
+    {...others}
   >
-    +
+    <div className={!active ? commonClasses.hidden : ''}>
+      {menus.map((e, i) => (
+        <div
+          key={e.key}
+          className={[commonClasses.btn, 'animated', active ? 'slideInRight' : ''].join(' ')}
+          style={{ animationDelay: `${(menus.length - i - 1) * 100}ms` }}
+          onClick={() => onSelect(e.key, e)}
+        >
+          {e.label}
+        </div>
+      ))}
+    </div>
+    <div
+      className={commonClasses.btn} style={{ fontSize: '1.5rem' }}
+      onClick={onOpen}
+    >+</div>
   </div>
 );
 
@@ -306,6 +353,20 @@ ghoul({
   state: {
     count: 0,
     loading: false,
+    menusActive: false,
+    menus: [{
+      key: 'javascript',
+      label: 'JS',
+    }, {
+      key: 'css',
+      label: 'CSS',
+    }, {
+      key: 'go',
+      label: 'GO',
+    }, {
+      key: 'python',
+      label: 'python',
+    }],
     data: {},
   },
   view: (state, action, effect) => (
@@ -319,26 +380,26 @@ ghoul({
           />
         ))
       }
-      <SyncButton onClick={() => effect('sync')} />
+      <SyncButton
+        active={state.menusActive}
+        menus={state.menus}
+        onOpen={() => action('switch/menu/status')}
+        onSelect={lang => effect('sync', lang)}
+      />
       <Loading active={state.loading}/>
     </Page>
   ),
   actions: {
-    '+': (state, n = 1) => ({ count: state.count + n }),
-    '-': (state, n = 1) => ({ count: state.count - n }),
-    save: (state, data) => ({ data: Object.assign({}, state.data, data) }),
+    save: (state, data) => ({ data /* Object.assign({}, state.data, data) */ }),
     'sync/start': () => ({ loading: true }),
     'sync/end': () => ({ loading: false }),
+    'switch/menu/status': state => ({ menusActive: !state.menusActive }),
   },
   effects: {
-    '+1s': ({ state, action, effect, next }, n = 1) =>  {
-      action('-', n);
-      setTimeout(() => next(action('+', 3)), 5000);
-    },
-    sync: ({ action }) => {
+    sync: ({ action }, lang) => {
       action('sync/start');
 
-      fetch('https://trending-api-github.herokuapp.com/api/repo/javascript/?since=daily')
+      fetch(`https://trending-api-github.herokuapp.com/api/repo/${lang}/?since=daily`)
         .then(res => res.json())
         .then(r => r.data)
         .then(e => e.reduce(
@@ -347,6 +408,7 @@ ghoul({
               [b.repo]: Object.assign({}, b, {
                 key: b.repo,
                 repo: b.repo.slice(1),
+                link: b.repo_link,
                 avatar: b.avatars[0],
                 desciption: b.desc,
                 star: b.stars,
