@@ -10,7 +10,7 @@ export function compose(...funcs: Function[]) {
   return  funcs.reduce((a, b) => (...args: Function[]) => a(b(...args)));
 }
 
-function setProps(element: HTMLElement | SVGElement | Text, key: string, value: any = {}, oldValue: any = {}) {
+function setProps(element: HTMLElement | SVGElement | Text, key: string, value: any = {}, oldValue: any = {}, isSVG?: boolean) {
   if (key === 'key' || key === 'children') {
     return true;
   } else if (key === 'ref') {
@@ -19,7 +19,11 @@ function setProps(element: HTMLElement | SVGElement | Text, key: string, value: 
       value(element);
     }
   } else if (key === 'class' || key === 'className') {
-    (element as any).className = value || '';
+    if (isSVG) {
+      (element as any).setAttribute('class', value);
+    } else {
+      (element as any).className = value || '';
+    }
   } else if (key === 'style') {
     for (const i in Object.assign({}, oldValue, value)) {
       if (typeof i === 'string') {
@@ -50,24 +54,24 @@ function setProps(element: HTMLElement | SVGElement | Text, key: string, value: 
   }
 }
 
-export function createElement(node: Node): HTMLElement | SVGElement | Text {
+export function createElement(node: Node, isSVG?: boolean | undefined): HTMLElement | SVGElement | Text {
   if (typeof node === 'string') {
     return document.createTextNode(node);
   } else if (node.tag == null) {
     return document.createTextNode(node.toString());
   } else {
-    const element: HTMLElement | SVGElement = node.tag === 'svg'
+    const element: HTMLElement | SVGElement = (isSVG = (node.tag === 'svg' || isSVG))
       ? document.createElementNS('http://www.w3.org/2000/svg', node.tag)
       : document.createElement(node.tag);
 
     // 1 self
     for (const k in node.attributes) {
-      setProps(element, k, node.attributes[k]);
+      setProps(element, k, node.attributes[k], null, isSVG);
     }
 
     // 2 children
     for (const childNode of node.attributes.children) {
-      element.appendChild(createElement(childNode));
+      element.appendChild(createElement(childNode, isSVG));
     }
 
     // lifecycle: 1 oncreate
@@ -86,7 +90,7 @@ export function updateElement(element: HTMLElement | SVGElement | Text, props: A
     const value = ['value', 'checked'].indexOf(key) !== -1 ? (element as any)[key] : props[key];
 
     if (key !== 'children' && nextValue !== value) {
-      setProps(element, key, nextValue, value);
+      setProps(element, key, nextValue, value, false);
     }
   }
 

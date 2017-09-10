@@ -21,7 +21,8 @@ module.exports = {
         options: {
           presets: ['env'],
           plugins: [
-            ['transform-react-jsx', { 'pragma': 'h' }]
+            ['transform-react-jsx', { 'pragma': 'h' }],
+            'transform-runtime',
           ],
         },
       },
@@ -36,7 +37,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Ghoul - Hello world',
+      title: 'Ghoul - Github Trending',
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],

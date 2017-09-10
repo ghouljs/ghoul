@@ -1,6 +1,6 @@
 export { patch } from './vdom';
 export { h } from './h';
 
-import { app } from './app';
+import { ghoul } from './ghoul';
 
-export default app;
+export default ghoul;

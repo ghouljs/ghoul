@@ -36,7 +36,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Ghold - Hello world',
+      title: 'Ghoul - Counter',
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],

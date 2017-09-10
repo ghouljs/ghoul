@@ -1,26 +1,20 @@
-import app, { h } from '../../../lib';
+import Ghoul, { h } from '../../../lib';
 
-
-app({
+Ghoul({
   state: {
     count: 0,
   },
-  view: (state, actions, effects) => (
-    <div>
-      <div>{state.count}</div>
-      <button onClick={actions['+']}>+</button>
-      <button onClick={actions['-']}>-</button>
-      <button onClick={effects['+1s']}>+1s</button>
-    </div>
+  view: (state, action) => (
+    <h1>
+      <div>
+        {state.count}<br/>
+      </div>
+      <button onClick={() => action('+1')}>+</button>
+      <button onClick={() => action('-1')}>-</button>
+    </h1>
   ),
   actions: {
-    '+': state => ({ count: state.count + 1 }),
-    '-': state => ({ count: state.count - 1 }),
-  },
-  effects: {
-    '+1s': (state, actions, effetcs, next) =>  {
-      actions['-']();
-      setTimeout(() => next(actions['+'](state)), 5000);
-    },
+    '+1': state => ({ count: state.count + 1 }),
+    '-1': state => ({ count: state.count - 1}),
   },
 });
