@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const Visualizer = require('webpack-visualizer-plugin');
 
 module.exports = {
   context: __dirname,
@@ -46,7 +47,7 @@ module.exports = {
       title: 'Ghoul - Github Trending',
     }),
     new webpack.HotModuleReplacementPlugin(),
-  ],
+  ].concat(process.env.VISUALIZE ? [new Visualizer()] : []),
   devServer: {
     host: process.env.HOST || '127.0.0.1',
     port: process.env.PORT || 9000,

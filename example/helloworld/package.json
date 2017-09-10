@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "webpack-dev-server --color"
+    "start": "webpack-dev-server --color",
+    "build": "rimraf -rf dist && NODE_ENV=production webpack --progress --color"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -8,6 +9,7 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.6.0",
     "html-webpack-plugin": "^2.30.1",
+    "rimraf": "^2.6.1",
     "webpack": "^3.5.6",
     "webpack-dev-server": "^2.7.1"
   }
