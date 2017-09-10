@@ -17,6 +17,8 @@
     "webpack-visualizer-plugin": "^0.1.11"
   },
   "dependencies": {
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "jss": "^8.1.0",
+    "jss-preset-default": "^3.0.0"
   }
 }
