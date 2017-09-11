@@ -2,7 +2,7 @@ import { Props, Context, State } from './types';
 
 // const FORCE_RENDER = 'FORCE_RENDER';
 
-export class Component {
+export default class Component {
   props: Props;
   context: Context;
   state: State;
