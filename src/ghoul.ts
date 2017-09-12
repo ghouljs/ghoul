@@ -1,7 +1,19 @@
 import { App, FunctionObject } from './types';
-import { patch } from './vdom';
+import { patch, compose } from './vdom';
 
 declare var Promise: any;
+
+let globalPlugins: Array<any> = [];
+
+export function installPlugin(plugins = []) {
+  for (const plugin of plugins) {
+    globalPlugins.push(
+      // (next: Function) => (state: any, action: any, effect: any) => (type: string, ...args: any[]) => plugin(state, action, effect, next)(type, ...args),
+      plugin,
+    );
+  }
+}
+
 
 export function ghoul(props: App) {
   let state = props.state || {};
@@ -9,6 +21,8 @@ export function ghoul(props: App) {
   const actions: FunctionObject = {};
   const effects: FunctionObject = {};
   const subscriptions: FunctionObject = {};
+
+  let enhancer: Function;
 
   let el = props.root || document.body;
   let element: any;
@@ -38,6 +52,8 @@ export function ghoul(props: App) {
         return o;
       }, subscriptions);
 
+    applyMiddleware();
+
     requestAnimationFrame(render as any);
 
     setImmediate(runSubscriptions);
@@ -47,8 +63,20 @@ export function ghoul(props: App) {
     element = patch(el, element, oldNode, (oldNode = view(state, action, effect)));
   }
 
+  function applyMiddleware() {
+    enhancer = compose(...globalPlugins.map(e => e(getState, action, effect)));
+  }
+
+  function getState() {
+    return state;
+  }
+
   function action(type: string, ...args: any[]) {
-    return actions[type](...args);
+    const actionObject = enhancer({ type, payload: args }) || {};
+
+    if (!actionObject.type || !actions[actionObject.type]) return false;
+
+    return actions[actionObject.type](...actionObject.payload)
   }
 
   function effect(type: string, ...args: any[]) {
