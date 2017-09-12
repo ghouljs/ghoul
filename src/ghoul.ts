@@ -3,7 +3,7 @@ import { patch, compose } from './vdom';
 
 declare var Promise: any;
 
-let globalPlugins: Array<any> = [];
+let globalPlugins: Array<any> = [() => (action: any) => action];
 
 export function installPlugin(plugins = []) {
   for (const plugin of plugins) {

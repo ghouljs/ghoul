@@ -349,6 +349,14 @@ const Loading = ({ active }) => (
   </div>
 );
 
+
+// const logger = getState => action => {
+//   console.log('[logger before]: ', getState(), action);
+//   return action;
+// };
+
+// ghoul.installPlugin([logger]);
+
 ghoul({
   state: {
     count: 0,
