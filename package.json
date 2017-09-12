@@ -1,4 +1,11 @@
 {
+  "name": "ghoulapp",
+  "version": "1.0.0",
+  "description": "Ghoul is an simple Javascript framework for build frontend applications.",
+  "main": "lib/index.js",
+  "repository": "https://github.com/whatwewant/ghoul",
+  "author": "uniquecolesmith@gmail.com",
+  "license": "MIT",
   "scripts": {
     "build": "rimraf -f lib && tsc",
     "deploy:example": "gh-pages -d example/gh-pages"
@@ -8,7 +15,11 @@
     "rimraf": "^2.6.1",
     "typescript": "^2.5.2"
   },
-  "dependencies": {
-    "whatwg-fetch": "^2.0.3"
-  }
+  "files": [
+    "lib/index.js",
+    "lib/h.js",
+    "lib/types.js",
+    "lib/ghoul.js",
+    "lib/vdom"
+  ]
 }
