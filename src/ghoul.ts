@@ -30,6 +30,14 @@ export function ghoul(props: App) {
 
   init();
 
+  return {
+    getState,
+    getActions,
+    getEffects,
+    action,
+    effect,
+  };
+
   function init() {
     Object
       .keys(props.actions || {})
@@ -71,6 +79,14 @@ export function ghoul(props: App) {
     return state;
   }
 
+  function getActions() {
+    return actions;
+  }
+
+  function getEffects() {
+    return effects;
+  }
+
   function action(type: string, ...args: any[]) {
     const actionObject = enhancer({ type, payload: args }) || {};
 
@@ -96,7 +112,9 @@ export function ghoul(props: App) {
         && Object.keys(state).every(k => state[k] === currentState[k])) return ;
         
         state = currentState;
-        requestAnimationFrame(next as any);
+        requestAnimationFrame(() => {
+          next();
+        });
       }
     };
   }
