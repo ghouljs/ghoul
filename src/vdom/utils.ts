@@ -34,9 +34,10 @@ function setProps(element: HTMLElement | SVGElement | Text, key: string, value: 
     if (value) (element as any).innerHTML = value.__html || '';
   } else if (key.indexOf('on') !== -1) {
     // event listener
-    if (value && (element as any)[key.toLowerCase()] == null) {
+    // if (value && (element as any)[key.toLowerCase()] == null) {
+    if (value) {
       (element as any)[key.toLowerCase()] = typeof value === 'function' ? value : noop;
-    } else if (value == null) {
+    } else {
       (element as any)[key.toLowerCase()] = null;
     }
   } else {
