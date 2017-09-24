@@ -82,6 +82,10 @@ export default function patch(parent: HTMLElement | SVGElement | Text, element: 
       const key = getKey(oldNode.attributes.children[i]);
 
       if (null == key || (key && !usedKeys[key])) {
+        // record remove children to avoid parent removeChild error in removeing
+        //  reusableChildren
+        usedKeys[key] = true;
+
         const oldChildNode = oldNode.attributes.children[i];
         removeElement(element, oldElements[i], oldChildNode.attributes);
       }
