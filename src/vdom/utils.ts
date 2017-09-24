@@ -75,8 +75,8 @@ export function createElement(node: Node, isSVG?: boolean | undefined): HTMLElem
     }
 
     // lifecycle: 1 oncreate
-    if (node.attributes && node.attributes.oncreate) {
-      node.attributes.oncreate(element);
+    if (node.attributes && node.attributes.onCreate) {
+      node.attributes.onCreate(element);
     }
 
     return element;
@@ -94,8 +94,8 @@ export function updateElement(element: HTMLElement | SVGElement | Text, props: A
     }
   }
 
-  if (props && props.onupdate) {
-    props.onupdate(element);
+  if (props && props.onUpdate) {
+    props.onUpdate(element);
   }
 }
 
@@ -106,8 +106,8 @@ export function removeElement(parent: HTMLElement | SVGElement | Text, element: 
   
 
   // lifecycle: onremove
-  if (props && props.onremove) {
-    compose(remove, props.onremove)(element);
+  if (props && props.onRemove) {
+    compose(remove, props.onRemove)(element);
   } else {
     remove();
   }

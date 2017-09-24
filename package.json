@@ -1,6 +1,6 @@
 {
   "name": "ghoulapp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Ghoul is an simple Javascript framework for build frontend applications.",
   "main": "lib/index.js",
   "repository": "https://github.com/whatwewant/ghoul",
