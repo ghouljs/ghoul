@@ -85,16 +85,20 @@ export function createElement(node: Node, isSVG?: boolean | undefined): HTMLElem
 
 
 export function updateElement(element: HTMLElement | SVGElement | Text, props: Attributes, nextProps: Attributes) {
+  let needBeUpdated = false;
   for (const key in Object.assign({}, props, nextProps)) {
     const nextValue = nextProps[key];
     const value = ['value', 'checked'].indexOf(key) !== -1 ? (element as any)[key] : props[key];
 
     if (key !== 'children' && nextValue !== value) {
+      needBeUpdated = true;
       setProps(element, key, nextValue, value, false);
+    } else if (key === 'children' && nextValue.length !== value.length) {
+      needBeUpdated = true;
     }
   }
 
-  if (props && props.onUpdate) {
+  if (needBeUpdated && props && props.onUpdate) {
     props.onUpdate(element);
   }
 }
