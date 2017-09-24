@@ -90,12 +90,20 @@ export function ghoul(props: App) {
   function action(type: string, ...args: any[]) {
     const actionObject = enhancer({ type, payload: args }) || {};
 
-    if (!actionObject.type || !actions[actionObject.type]) return false;
+    if (!Object.prototype.hasOwnProperty.call(actions, actionObject.type)) {
+      // warning: actions have no type.
+      return false;
+    }
 
     return actions[actionObject.type](...actionObject.payload)
   }
 
   function effect(type: string, ...args: any[]) {
+    if (!Object.prototype.hasOwnProperty.call(effects, type)) {
+      // warning: effects have no type.
+      return false;
+    }
+
     return effects[type](...args);
   }
 
