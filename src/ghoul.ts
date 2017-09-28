@@ -5,6 +5,10 @@ declare var Promise: any;
 
 let globalPlugins: Array<Function> = [() => (action: any) => action];
 
+function dispatch(action: object): object {
+  return action;
+}
+
 export function installPlugin(plugins: Function | Array<Function> = []) {
   if (!Array.isArray(plugins)) plugins = [plugins];
 
@@ -123,15 +127,25 @@ export function ghoul(props: App) {
     return effects;
   }
 
-  function action(type: string, ...args: any[]) {
-    const actionObject = enhancer({ type, payload: args }) || {};
-
-    if (!Object.prototype.hasOwnProperty.call(actions, actionObject.type)) {
+  async function action(type: string, ...args: any[]) {
+    if (!Object.prototype.hasOwnProperty.call(actions, type)) {
       // warning: actions have no type.
       return false;
     }
 
-    return actions[actionObject.type].call(actions, ...actionObject.payload)
+    enhancer(next)({ type, payload: args });
+
+    return {
+      getState,
+      action,
+      effect,
+    };
+
+    function next(action: any) {
+      // change state;
+      actions[type].call(actions, ...args)
+      return dispatch(action);
+    };
   }
 
   function effect(type: string, ...args: any[]) {
