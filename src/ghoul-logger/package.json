@@ -1,0 +1,19 @@
+{
+  "name": "ghoul-logger",
+  "version": "1.0.0",
+  "description": "Ghoul-logger is a log middleware of ghoul",
+  "main": "./index.js",
+  "repository": "https://github.com/whatwewant/ghoul-logger",
+  "author": "uniquecolesmith@gmail.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf -f lib && tsc"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.1",
+    "typescript": "^2.5.2"
+  },
+  "files": [
+    "index.js"
+  ]
+}
