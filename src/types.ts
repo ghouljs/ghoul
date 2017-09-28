@@ -37,6 +37,8 @@ export interface App {
   view: Function;
   actions: IObject;
   effects: FunctionObject;
+  methods: FunctionObject;
+  computed: FunctionObject;
   subscriptions: IObject;
 
   root?: HTMLElement;
