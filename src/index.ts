@@ -6,5 +6,5 @@ import { ghoul, installPlugin } from './ghoul';
 export default ghoul;
 
 Object.assign(ghoul, {
-  installPlugin,
+  use: installPlugin,
 });

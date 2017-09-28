@@ -3,14 +3,18 @@ import { patch, compose } from './vdom';
 
 declare var Promise: any;
 
-let globalPlugins: Array<any> = [() => (action: any) => action];
+let globalPlugins: Array<Function> = [() => (action: any) => action];
 
-export function installPlugin(plugins = []) {
+export function installPlugin(plugins: Function | Array<Function> = []) {
+  if (!Array.isArray(plugins)) plugins = [plugins];
+
   for (const plugin of plugins) {
-    globalPlugins.push(
-      // (next: Function) => (state: any, action: any, effect: any) => (type: string, ...args: any[]) => plugin(state, action, effect, next)(type, ...args),
-      plugin,
-    );
+    if (typeof plugin === 'function') {
+      globalPlugins.push(
+        // (next: Function) => (state: any, action: any, effect: any) => (type: string, ...args: any[]) => plugin(state, action, effect, next)(type, ...args),
+        plugin,
+      );
+    }
   }
 }
 
@@ -32,7 +36,8 @@ export function ghoul(props: App) {
   let oldNode: any;
 
   // status
-  let locked = false;
+  let locked: boolean = false;
+  let lastState: object;
 
   init();
 
@@ -87,18 +92,23 @@ export function ghoul(props: App) {
   }
 
   function render() {
+    if (lastState === state) {
+      // avoid render, when state equal
+      return false;
+    }
+
     if (locked === true) {
       // if locked, render on next animation frame.
       return requestAnimationFrame(render as any); 
     }
 
     locked = true;
-    element = patch(el, element, oldNode, (oldNode = view(state, computed, methods)));
+    element = patch(el, element, oldNode, (oldNode = view(lastState = state, computed, methods)));
     locked = false;
   }
 
   function applyMiddleware() {
-    enhancer = compose(...globalPlugins.map(e => e(getState, action, effect)));
+    enhancer = compose(...globalPlugins.map(e => e({ getState, action, effect })));
   }
 
   function getState() {
