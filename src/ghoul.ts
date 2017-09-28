@@ -22,11 +22,17 @@ export function ghoul(props: App) {
   const effects: FunctionObject = {};
   const subscriptions: FunctionObject = {};
 
+  const methods: FunctionObject = {};
+  const computed: FunctionObject = {};
+
   let enhancer: Function;
 
   let el = props.root || document.body;
   let element: any;
   let oldNode: any;
+
+  // status
+  let locked = false;
 
   init();
 
@@ -54,11 +60,24 @@ export function ghoul(props: App) {
       }, effects);
 
     Object
+      .keys(props.methods || {})
+      .reduce((o, r) => {
+        o[r] = Method(props.methods[r]);
+        return o;
+      }, methods);
+
+    Object
       .keys(props.subscriptions || {})
       .reduce((o, r) => {
         o[r] = Subscription(props.subscriptions[r]);
         return o;
       }, subscriptions);
+
+    Object
+      .keys(props.computed || {})
+      .forEach((key) => {
+        Computed(computed, key, props.computed[key]);
+      });
 
     applyMiddleware();
 
@@ -68,7 +87,14 @@ export function ghoul(props: App) {
   }
 
   function render() {
-    element = patch(el, element, oldNode, (oldNode = view(state, action, effect)));
+    if (locked === true) {
+      // if locked, render on next animation frame.
+      return requestAnimationFrame(render as any); 
+    }
+
+    locked = true;
+    element = patch(el, element, oldNode, (oldNode = view(state, computed, methods)));
+    locked = false;
   }
 
   function applyMiddleware() {
@@ -95,7 +121,7 @@ export function ghoul(props: App) {
       return false;
     }
 
-    return actions[actionObject.type](...actionObject.payload)
+    return actions[actionObject.type].call(actions, ...actionObject.payload)
   }
 
   function effect(type: string, ...args: any[]) {
@@ -104,12 +130,12 @@ export function ghoul(props: App) {
       return false;
     }
 
-    return effects[type](...args);
+    return effects[type].call(effects, ...args);
   }
 
   function Action(actionFn: Function, next: Function) {
     return function (...args: any[]) {
-      const updatedState = actionFn(state, ...args);
+      const updatedState = actionFn.call(actions, state, ...args);
       if (typeof updatedState === 'function') {
         updatedState();
       } else {
@@ -129,15 +155,38 @@ export function ghoul(props: App) {
 
   function Effect(effectFn: Function) {
     return (...args: any[]) => new Promise(
-      (resolve: any) => effectFn({ state, action, effect, next: resolve }, ...args)
+      (resolve: any) => effectFn.call(effects, { state, action, effect, next: resolve }, ...args)
     );
   }
 
+  function Method(methodFn: Function) {
+    return (...args: any[]) => new Promise(
+      (resolve: any) => methodFn.call(methods, { state, action, effect, next: resolve }, ...args)
+    );
+  }
+
+  function Computed(obj: object, name: string, computedFn: Function) {
+    let value: any;
+    let tmpState: any;
+    Object.defineProperty(obj, name, {
+      get: function () {
+        const currentState = getState();
+        if (tmpState === currentState) {
+          return value;
+        }
+
+        tmpState = currentState;
+        value = computedFn.call(null, currentState);
+        return value;
+      },
+    });
+  }
+
   function Subscription(subscriber: Function) {
-    return (...args: any[]) => subscriber({ state, action, effect });
+    return (...args: any[]) => subscriber.call(subscriptions, { state, action, effect });
   }
 
   function runSubscriptions() {
-    Object.keys(subscriptions).map(e => subscriptions[e]).forEach((e: any) => e());
+    Object.keys(subscriptions).map(e => subscriptions[e]).forEach((e: any) => e.call(subscriptions));
   }
 }
