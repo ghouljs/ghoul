@@ -1,6 +1,6 @@
 {
   "name": "ghoulapp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Ghoul is an simple Javascript framework for build frontend applications.",
   "main": "lib/index.js",
   "repository": "https://github.com/whatwewant/ghoul",
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "gh-pages": "^1.0.0",
+    "redux": "^3.7.2",
     "rimraf": "^2.6.1",
     "typescript": "^2.5.2"
   },
@@ -21,5 +22,8 @@
     "lib/types.js",
     "lib/ghoul.js",
     "lib/vdom"
-  ]
+  ],
+  "dependencies": {
+    "invariant": "^2.2.2"
+  }
 }

@@ -7,7 +7,7 @@ import {
   updateElement,
   removeElement,
   getKey,
-} from './utils';
+} from './dom';
 
 export default function patch(parent: HTMLElement | SVGElement | Text, element: HTMLElement | SVGElement | Text, oldNode: Node | null, node: Node) {
   if (oldNode === node) {

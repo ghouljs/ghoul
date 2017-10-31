@@ -1,4 +1,5 @@
 import { Node, Attributes } from '../types';
+import { getDirective, isDirective, scanNodePropsAndCall } from './directive';
 
 const noop = () => {};
 
@@ -10,7 +11,7 @@ export function compose(...funcs: Function[]) {
   return  funcs.reduce((a, b) => (...args: Function[]) => a(b(...args)));
 }
 
-function setProps(element: HTMLElement | SVGElement | Text, key: string, value: any = {}, oldValue: any = {}, isSVG?: boolean) {
+function setProps(element: Element | HTMLElement | SVGElement | Text, key: string, value: any = {}, oldValue: any = {}, isSVG?: boolean, updating?: boolean) {
   if (key === 'key' || key === 'children') {
     return true;
   } else if (key === 'ref') {
@@ -40,6 +41,24 @@ function setProps(element: HTMLElement | SVGElement | Text, key: string, value: 
     } else {
       (element as any)[key.toLowerCase()] = null;
     }
+  } else if (isDirective(key)) {
+    const { name, handler } = getDirective(key);
+    const binding = {
+      name,
+      handler,
+      value: value,
+      expression: value,
+    };
+
+    if (!updating) {
+      // 1 directive:create
+      handler.oncreate.call(null, element, binding);
+    } else {
+      // 2 directive:update
+      if ((handler as any).onupdate) {
+        (handler as any).onupdate.call(null, element, binding);
+      }
+    }
   } else {
     try {
       (element as any)[key] = value;
@@ -67,7 +86,7 @@ export function createElement(node: Node, isSVG?: boolean | undefined): HTMLElem
 
     // 1 self
     for (const k in node.attributes) {
-      setProps(element, k, node.attributes[k], null, isSVG);
+      setProps(element, k, node.attributes[k], null, isSVG, false);
     }
 
     // 2 children
@@ -93,7 +112,7 @@ export function updateElement(element: HTMLElement | SVGElement | Text, props: A
 
     if (key !== 'children' && nextValue !== value) {
       needBeUpdated = true;
-      setProps(element, key, nextValue, value, false);
+      setProps(element, key, nextValue, value, false, true);
     } else if (key === 'children' && nextValue.length !== value.length) {
       needBeUpdated = true;
     }
@@ -109,6 +128,20 @@ export function removeElement(parent: HTMLElement | SVGElement | Text, element: 
     parent.removeChild(element);
   };
   
+  // 3 directive:remove
+  scanNodePropsAndCall(props, (key, value) => {
+    const { name, handler } = getDirective(key);
+    const binding = {
+      name,
+      handler,
+      value: value,
+      expression: value,
+    };
+
+    if ((handler as any).onremove) {
+      (handler as any).onremove.call(null, element, binding);
+    }
+  });
 
   // lifecycle: onremove
   if (props && props.onRemove) {

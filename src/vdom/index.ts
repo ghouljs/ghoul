@@ -1,2 +1,3 @@
 export { default as patch } from './patch';
-export { compose } from './utils';
+export { compose } from './dom';
+export { directive } from './directive';

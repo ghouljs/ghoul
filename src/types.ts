@@ -43,3 +43,30 @@ export interface App {
 
   root?: HTMLElement;
 }
+
+export type DirectiveBinding = {
+  name: string;
+  handler?: DirectiveHandler;
+  value?: string;
+  expression?: string;
+  argument?: string;
+  modifiers?: object;
+};
+export type DirectiveHandlerFn = (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+export type DirectiveHandlerObject =  {
+  // bind: (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+  oncreate: (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+  onupdate?: (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+  onremove?: (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+  // unbind?: (el?: Element, binding?: DirectiveBinding, vnode?: object) => void;
+};
+export type DirectiveHandler =  DirectiveHandlerFn | DirectiveHandlerObject;
+
+export interface Directive {
+  name: string;
+  handler: DirectiveHandlerObject;
+};
+
+export interface Directives {
+  [key: string]: DirectiveHandler;
+};
