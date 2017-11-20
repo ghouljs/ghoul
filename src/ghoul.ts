@@ -211,6 +211,7 @@ export function ghoul(props: App) {
   function Action(actionFn: Function, next: Function) {
     return function (...args: any[]) {
       const updatedState = actionFn.call(actions, state, ...args);
+
       if (typeof updatedState === 'function') {
         updatedState();
       } else {
@@ -230,13 +231,13 @@ export function ghoul(props: App) {
 
   function Effect(effectFn: Function) {
     return (...args: any[]) => new Promise(
-      (resolve: any) => effectFn.call(effects, { state, action, effect, next: resolve }, ...args)
+      (resolve: any) => effectFn.call(effects, { state, getState, action, effect, next: resolve }, ...args)
     );
   }
 
   function Method(methodFn: Function) {
     return (...args: any[]) => new Promise(
-      (resolve: any) => methodFn.call(methods, { state, action, effect, next: resolve }, ...args)
+      (resolve: any) => methodFn.call(methods, { state, getState, action, effect, next: resolve }, ...args)
     );
   }
 
@@ -258,7 +259,7 @@ export function ghoul(props: App) {
   }
 
   function Subscription(subscriber: Function) {
-    return (...args: any[]) => subscriber.call(subscriptions, { state, action, effect, watch });
+    return (...args: any[]) => subscriber.call(subscriptions, { state, getState, action, effect, watch });
   }
 
   function runSubscriptions() {
