@@ -8,14 +8,18 @@ let globalPlugins: Array<Function> = [() => (action: any) => action];
 
 const WATCH = {
   props: {},
-  register(variable: string, callback: Function) {
-    if (!Object.prototype.hasOwnProperty.call(this.props, variable)) {
-      this.props[variable] = {
-        lastState: null,
-        callbacks: [callback],
-      };
-    } else {
-      this.props[variable].callbacks.push(callback);
+  register(variable: string | Array<string>, callback: Function) {
+    const variables = Array.isArray(variable) ? variable : [variable];
+
+    for (const v of variables) {
+      if (!Object.prototype.hasOwnProperty.call(this.props, v)) {
+        this.props[v] = {
+          lastState: null,
+          callbacks: [callback],
+        };
+      } else {
+        this.props[v].callbacks.push(callback);
+      }
     }
   },
   diff(lastState: any, currentState: any, callback: Function) {
@@ -204,7 +208,7 @@ export function ghoul(props: App) {
     return effects[type].call(effects, ...args);
   }
 
-  function watch(variable: string, callback: Function) {
+  function watch(variable: string | Array<string>, callback: Function) {
     WATCH.register(variable, callback);
   }
 
