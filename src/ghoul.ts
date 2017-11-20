@@ -2,8 +2,43 @@ import { App, FunctionObject } from './types';
 import { patch, compose } from './vdom';
 
 declare var Promise: any;
+declare var process: any;
 
 let globalPlugins: Array<Function> = [() => (action: any) => action];
+
+const WATCH = {
+  props: {},
+  register(variable: string, callback: Function) {
+    if (!Object.prototype.hasOwnProperty.call(this.props, variable)) {
+      this.props[variable] = {
+        lastState: null,
+        callbacks: [callback],
+      };
+    } else {
+      this.props[variable].callbacks.push(callback);
+    }
+  },
+  diff(lastState: any, currentState: any, callback: Function) {
+    if (currentState !== lastState) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  run({ getState, action, effect }: { getState: Function, action: Function, effect: Function }) {
+    const state = getState();
+
+    for (const key in this.props) {
+      const { lastState, callbacks } = this.props[key];
+      const currentState = state[key];
+      if (this.diff(lastState, currentState)) {
+        callbacks.forEach((fn: Function) => {
+          fn.call(callbacks, { getState, action, effect });
+        });
+      }
+    }
+  }
+};
 
 function dispatch(action: object): object {
   return action;
@@ -21,7 +56,6 @@ export function installPlugin(plugins: Function | Array<Function> = []) {
     }
   }
 }
-
 
 export function ghoul(props: App) {
   let state = props.state || {};
@@ -51,6 +85,7 @@ export function ghoul(props: App) {
     getEffects,
     action,
     effect,
+    watch,
   };
 
   function init() {
@@ -130,7 +165,11 @@ export function ghoul(props: App) {
   async function action(type: string, ...args: any[]) {
     if (!Object.prototype.hasOwnProperty.call(actions, type)) {
       // warning: actions have no type.
-      return false;
+      if (process.env.NODE_ENV === 'production') {
+        return false;
+      }
+      
+      throw new Error(`(action) Error: actions have no type of ${type}`);
     }
 
     enhancer(next)({ type, payload: args });
@@ -144,6 +183,10 @@ export function ghoul(props: App) {
     function next(action: any) {
       // change state;
       actions[type].call(actions, ...args)
+
+      // run watch
+      WATCH.run({ getState, action, effect });
+
       return dispatch(action);
     };
   }
@@ -151,10 +194,18 @@ export function ghoul(props: App) {
   function effect(type: string, ...args: any[]) {
     if (!Object.prototype.hasOwnProperty.call(effects, type)) {
       // warning: effects have no type.
-      return false;
+      if (process.env.NODE_ENV === 'production') {
+        return false;
+      }
+      
+      throw new Error(`(effect) Error: effects have no type of ${type}`);
     }
 
     return effects[type].call(effects, ...args);
+  }
+
+  function watch(variable: string, callback: Function) {
+    WATCH.register(variable, callback);
   }
 
   function Action(actionFn: Function, next: Function) {
@@ -207,7 +258,7 @@ export function ghoul(props: App) {
   }
 
   function Subscription(subscriber: Function) {
-    return (...args: any[]) => subscriber.call(subscriptions, { state, action, effect });
+    return (...args: any[]) => subscriber.call(subscriptions, { state, action, effect, watch });
   }
 
   function runSubscriptions() {
