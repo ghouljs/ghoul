@@ -1,7 +1,7 @@
 import createGhoulStore from './createGhoulStore';
 
-const createStore = (actions: any, initialState: any, plugins: any) => createGhoulStore({
-  actions,
+const createStore = (reducers: any, initialState: any, plugins: any) => createGhoulStore({
+  reducers,
   initialState,
   plugins,
 });
