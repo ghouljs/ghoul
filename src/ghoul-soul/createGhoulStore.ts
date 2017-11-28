@@ -7,8 +7,8 @@ export default function createGhoulStore({
   reducers = {},
   plugins = {},
 }) {
-  const reducers = Object.keys(reducers).every(e => typeof (reducers as any)[e] === 'function')
+  const reducersArray = Object.keys(reducers).every(e => typeof (reducers as any)[e] === 'function')
     ? createReducer(initialState, reducers)
     : combineReducers(Object.keys(reducers).reduce((a, namespace) => ({ ...a, [namespace]: createReducer((initialState as any)[namespace], (reducers as any)[namespace], namespace) }), {}));
-  return createStore({ reducers, initialState, plugins });
+  return createStore({ reducers: reducersArray, initialState, plugins });
 }

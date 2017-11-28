@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-
 import { CreateStore } from './types';
 
 declare var process: any;
@@ -15,8 +14,18 @@ export default function createNewStore({
   const middlewares = [
     ...extraMiddlewares,
   ];
-  const devtools = process.env.NODE_ENV !== 'production' && window && (window as any).__REDUX_DEVTOOLS_EXTENSION__
-    ? [(window as any).__REDUX_DEVTOOLS_EXTENSION__] : [];
+
+  let devtools = [];
+  let composeEnhancers = compose;
+  if (process.env.NODE_ENV !== 'production')  {
+    if (process.env.MODE === 'node') {
+      // devtools = [require('remote-redux-devtools')()];
+      composeEnhancers = require('remote-redux-devtools').composeWithDevTools({ realtime: true, port: 8008 });
+    } else {
+      devtools = typeof(window) !== 'undefined' && window && (window as any).__REDUX_DEVTOOLS_EXTENSION__
+      ? [(window as any).__REDUX_DEVTOOLS_EXTENSION__] : [];
+    }
+  }
 
   const enhancers = [
     applyMiddleware(...middlewares),
@@ -24,5 +33,5 @@ export default function createNewStore({
     ...extraEnhancers,
   ];
 
-  return createStore(reducers as any, initialState, compose(...enhancers));
+  return createStore(reducers as any, initialState, composeEnhancers(...enhancers));
 }
