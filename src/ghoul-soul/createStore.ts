@@ -1,9 +1,10 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { combineReducers, createStore, applyMiddleware, compose } from 'redux';
+import createReducer from './createReducer';
 import { CreateStore } from './types';
 
 declare var process: any;
 
-export default function createNewStore({
+function createNewStore({
   reducers,
   initialState = {},
   plugins = {},
@@ -39,4 +40,21 @@ export default function createNewStore({
   ];
 
   return createStore(reducers as any, initialState, composeEnhancers(...enhancers));
+}
+
+export default (reducers: any, initialState: any, plugins: any) => {
+  if (initialState === undefined && plugins === undefined) {
+    // reducersAndInitialStateAndPlugins Object
+    const ris = reducers;
+    
+    const reducersArray = Object.keys(ris.reducers).every(e => typeof (ris.reducers as any)[e] === 'function')
+      ? createReducer(ris.initialState, ris.reducers)
+      : combineReducers(Object.keys(ris.reducers).reduce((a, namespace) => ({ ...a, [namespace]: createReducer((ris.initialState as any)[namespace], (reducers as any)[namespace], namespace) }), {}));
+    return createNewStore({ reducers: reducersArray, initialState: ris.initialState, plugins: ris.plugins });
+  }
+
+  const reducersArray = Object.keys(reducers).every(e => typeof (reducers as any)[e] === 'function')
+    ? createReducer(initialState, reducers)
+    : combineReducers(Object.keys(reducers).reduce((a, namespace) => ({ ...a, [namespace]: createReducer((initialState as any)[namespace], (reducers as any)[namespace], namespace) }), {}));
+  return createNewStore({ reducers: reducersArray, initialState, plugins });
 }
