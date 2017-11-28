@@ -20,7 +20,12 @@ export default function createNewStore({
   if (process.env.NODE_ENV !== 'production')  {
     if (process.env.MODE === 'node') {
       // devtools = [require('remote-redux-devtools')()];
-      composeEnhancers = require('remote-redux-devtools').composeWithDevTools({ realtime: true, port: 8008 });
+      composeEnhancers = require('remote-redux-devtools').composeWithDevTools({
+        name: 'Node Redux App',
+        realtime: true,
+        hostname: process.env.REDUX_HOST || 'localhost',
+        port: process.env.REDUX_PORT || 8000,
+      });
     } else {
       devtools = typeof(window) !== 'undefined' && window && (window as any).__REDUX_DEVTOOLS_EXTENSION__
       ? [(window as any).__REDUX_DEVTOOLS_EXTENSION__] : [];
