@@ -1,3 +1,3 @@
-import createStore from './createStore';
+import createSoul from './createSoul';
 
-export default createStore;
+export default createSoul;
