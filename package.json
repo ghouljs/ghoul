@@ -17,6 +17,7 @@
     "remote-redux-devtools": "^0.5.12",
     "remotedev-server": "^0.2.4",
     "rimraf": "^2.6.1",
+    "ruban": "^0.2.1",
     "typescript": "^2.5.2"
   },
   "files": [
