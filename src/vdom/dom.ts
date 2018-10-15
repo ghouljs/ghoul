@@ -33,7 +33,7 @@ function setProps(element: Element | HTMLElement | SVGElement | Text, key: strin
     }
   } else if (key === 'dangerouslySetInnerHTML') {
     if (value) (element as any).innerHTML = value.__html || '';
-  } else if (key.indexOf('on') !== -1) {
+  } else if (key.indexOf('on') === 0 && key[2] && key[2] === key[2].toUpperCase()) {
     // event listener
     // if (value && (element as any)[key.toLowerCase()] == null) {
     if (value) {
